@@ -1,0 +1,37 @@
+# qtop PoH-lite — members.yaml schema contract
+# A single YAML document holding a list of human entries.
+#
+# REQUIRED (exactly five identity claims per person):
+#   github   : GitHub username            (must match author of the PR)
+#   email    : reachable mailbox          (nonce is delivered here)
+#   orcid    : ORCID iD                   (or empty string if N/A)
+#   keybase  : Keybase username           (or empty string if N/A)
+#   matrix   : Matrix id                  (or empty string if N/A)
+#
+# OPTIONAL:
+#   gpg_key_id      : ASCII-armored key id / fingerprint used to sign
+#   ssh_fingerprint : SSH key SHA256 fingerprint used to sign
+#   vouched_by      : [handleA, handleB]  already-verified humans
+#   proof.method    : 'signed-commit-nonce' | 'vouching'
+#   proof.date      : ISO date the row was accepted (YYYY-MM-DD)
+#   proof.nonce     : echoed nonce (UUID) proving mailbox ownership
+#   proof.verified_by: handle of the maintainer who accepted the row
+
+type: sequence
+required_fields:
+  - handle
+  - github
+  - email
+required_claims: [github, email, orcid, keybase, matrix]
+
+rules:
+  unique_handle: true
+  unique_github: true
+  email_regex: "^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$"
+  orcid_regex: "^$|^[0-9]{4}-[0-9]{4}-[0-9]{4}-[0-9]{3}[0-9X]$"
+  matrix_regex: "^$|^@[^:@\\s]+:[^@\\s]+$"
+  gpg_key_id_regex: "^$|^[0-9A-F]{16}|[0-9A-F]{40}|[0-9A-F]{64}$"
+  ssh_fingerprint_regex: "^$|^SHA256:[A-Za-z0-9+/=]+$"
+  up_to_5_claims_per_person: true
+  allow_vouched_by: true
+  max_vouches_for_new_human: 2

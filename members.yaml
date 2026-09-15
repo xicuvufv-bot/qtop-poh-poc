@@ -1,0 +1,69 @@
+# qtop PoH-lite — Registry of verified humans
+# Format contract: see schema.yaml
+#
+# Each row requires exactly FIVE identity claims
+# (github, email, orcid, keybase, matrix).
+# Optional: gpg_key_id, ssh_fingerprint, vouched_by.
+
+- handle: fotis
+  name: Fotis Georgatos
+  github: fgeorgatos
+  email: fgeorgatos@users.noreply.github.com
+  orcid: 0000-0001-8888-2222
+  keybase: fgeorgatos
+  matrix: "@fgeorgatos:matrix.org"
+  proof:
+    method: signed-commit-nonce
+    date: 2026-09-01
+    nonce: "POH-LITE-7f1a4b29-c0e0-4a38-bb22-8c7d23f61e90"
+    verified_by: fgeorgatos
+
+- handle: nicola
+  name: Nicola Truzzoli
+  github: nicolatrozzi
+  email: nicola.truzzoli@proton.me
+  orcid: 0000-0002-7777-9999
+  keybase: nicolatrozzi
+  matrix: "@nicolatrozzi:matrix.org"
+  vouched_by: [fotis]
+  proof:
+    method: signed-commit-nonce
+    date: 2026-09-02
+    nonce: "POH-LITE-a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+
+- handle: contributor-alpha
+  name: Alice Example
+  github: contributor-alpha
+  email: alice@example.com
+  orcid: 0000-0003-1111-3333
+  keybase: contrib-alpha
+  matrix: "@alpha:matrix.org"
+  proof:
+    method: signed-commit-nonce
+    date: 2026-09-10
+    nonce: "POH-LITE-deadbeef-1234-5678-abcd-0123456789ab"
+
+- handle: contributor-beta
+  name: Bob Beta
+  github: contributor-beta
+  email: bob-beta@proton.me
+  orcid: 0000-0004-2222-4444
+  keybase: contrib-beta
+  matrix: "@beta:matrix.org"
+  vouched_by: [fotis, nicola]
+  proof:
+    method: signed-commit-nonce
+    date: 2026-09-11
+    nonce: "POH-LITE-cafebabe-abcd-ef01-2345-678901234567"
+
+- handle: contributor-gamma
+  name: Carol Gamma
+  github: contributor-gamma
+  email: carol.gamma@cern.ch
+  orcid: 0000-0005-3333-5555
+  keybase: contrib-gamma
+  matrix: "@gamma:matrix.org"
+  proof:
+    method: signed-commit-nonce
+    date: 2026-09-12
+    nonce: "POH-LITE-0badc0de-5678-9012-3456-789012345678"

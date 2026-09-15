@@ -1,0 +1,34 @@
+name: poh-check
+on:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Run PoH registry checks
+        shell: bash
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.event.pull_request.head.repo.full_name }}
+          GITHUB_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          PR_AUTHOR: ${{ github.event.pull_request.user.login }}
+        run: |
+          chmod +x bin/verify-poh.sh
+          ./bin/verify-poh.sh --members members.yaml --schema schema.yaml
+
+      - name: Report registration status
+        shell: bash
+        run: |
+          echo "### PoH enrolment summary" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Requested by: \`${{ github.event.pull_request.user.login }}\`" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Registry check: see previous step output" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Next: maintainer emails a one-time nonce to the row's claimed mailbox." >> "$GITHUB_STEP_SUMMARY"
+          echo "- Remember qtop convention: sign your commits (SSH/GPG) and DCO sign-off in the PR." >> "$GITHUB_STEP_SUMMARY"
