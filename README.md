@@ -1,90 +1,78 @@
-# qtop PoH-lite (Proof of Humanity, lightweight)
+# qtop PoH-lite — Generic PoC
 
-A drop-in, dependency-light Proof-of-Humanity registry for open-source
-projects. A participant proves they are a person who can be reached, in
-under five minutes, using nothing but a signed git commit and a mailbox.
+Lightweight, git-native, mailbox-proved Proof-of-Humanity for open-source
+projects. POSIX sh only; zero runtime dependencies.
 
-This repository is the **generic, reusable proof-of-concept (PoC)** for
-the design proposed to the [qtop](https://github.com/qtop/qtop)
-project in [issue #551](https://github.com/qtop/qtop/issues/551)
+**Proposed to:** [qtop/qtop issue #551](https://github.com/qtop/qtop/issues/551)
 ("Make the PoH process lighter, more rewarding and more engaging for PR
 participants").
 
-It deliberately has **zero runtime dependencies** (POSIX sh + git +
-openssl only), as qtop is often run on early/bare HPC clusters.
+**PoH bounty on Opire:** $135,062.00 (as of 2026-09-10, verified via
+`api.opire.dev/rewards`). Repository qtop/qtop; reward id `01M24CPAN10ENHF7NZP6D0ZDSS`.
+Maintainer / point of contact: **Fotis Georgatos** (`fgeorgatos` on GitHub,
+Keybase, and Matrix).
 
 ---
 
-## What it does
+## What is here
 
-1. **Register** — a contributor adds a 5-claim YAML row to
-   `members.yaml` in a PR (github, email, orcid, keybase, matrix).
-2. **Prove** — every commit in the PR must be **signed**
-   (SSH/GPG). CI rejects unsigned commits.
-3. **Verify** — a maintainer (or bot) sends a one-time **email nonce**
-   to the claimed address; the contributor echoes it into a signed
-   commit. Whoever controls the source mailbox AND the signing key is
-   granted the row.
-4. **Reward** — the contributor's handle lands in the PoH-verified
-   pool. A CI job marks their future PRs with a `poh ✓` badge and the
-   maintainers give verified contributors **priority triage** — the
-   "rewarding" part that costs the project nothing.
-5. **Repeat / vouch** — trusted, already-verified humans may `vouch`
-   for newcomers (`vouched_by`), which short-circuits the email step
-   and keeps engagement high.
+| File | Purpose |
+|---|---|
+| `members.yaml` | Example registry (5-claim rows: github, email, orcid, keybase, matrix) |
+| `schema.yaml` | Field contract for the YAML rows |
+| `bin/verify-poh.sh` | Validates registry, enforces GitHub-signed HEAD commits |
+| `bin/poh-nonce.sh` | Generate / verify one-time email nonces |
+| `ci/poh-check.yml` | GitHub Actions workflow (needs `workflow` scope to deploy) |
+| `docs/PROTOCOL.md` | Full protocol spec |
+| `docs/anti-abuse.md` | Threat model and failure modes |
 
-## Rationale (why "lighter" than Keybase/Keyoxide)
+## Status
 
-| Concern               | Keyoxide/Keybase route        | PoH-lite                       |
-|-----------------------|-------------------------------|--------------------------------|
-| Extra service account | Required (sign-up + profile)  | None (git + mailbox you own)   |
-| Setup time            | 20–40 min                     | < 5 min                        |
-| Identity anchor       | Platform-mediated             | Git-native signed commit + nonce |
-| Bot resistance        | Account farms                 | Real signing key + mailbox     |
-| Maintenance           | External service             | One YAML + one shell script    |
+The proposal doc (`docs/poh-lite/PROPOSAL.md`) is on the fork branch
+`poh-lite-proposal` on `xicuvufv-bot/qtop`. GitHub interaction limits
+on `qtop/qtop` currently block new-contributor PRs and comments.
+Submission path: Opire dashboard + maintainer contact (below).
 
-## Repository layout
+## Next steps (for the submitter)
 
-```
-├── members.yaml            # the registry (example entries)
-├── schema.yaml             # field contract for the YAML rows
-├── docs/
-│   ├── PROTOCOL.md         # full flow, v0.9
-│   └── anti-abuse.md       # threat model & failure modes
-├── bin/
-│   ├── poh-nonce.sh        # generate a one-time nonce
-│   └── verify-poh.sh       # validate registry + PR (run from CI)
-└── .github/workflows/
-    └── poh-check.yml       # GitHub Action that enforces the checks
-```
+### 1. Claim the Opire bounty
+- Log into https://opire.dev with the GitHub account `xicuvufv-bot`.
+- Navigate to the qtop issue #551 bounty and **claim** it (via the
+  dashboard — bot is not installed on qtop).
+- Link your PR / branch URL so the reward creator can see the work.
 
-## Quick start (as a contributor)
+### 2. Configure payout
+- In Opire settings → connect a **Stripe account** (bank or Stripe
+  if available in your region).
+- Once the maintainer reviews and approves, payment is processed via
+  Stripe: 100% to you, 1–7 business days.
 
-```sh
-git clone https://github.com/<you>/qtop-poh-poc
-cd qtop-poh-poc
-# 1. register (edit members.yaml, add your 5 claims)
-# 2. commit signed:
-git commit -S -m "poh: add <handle> to registry (DCO)"
-# 3. pull request; CI checks signature + schema
-# 4. reply to the nonce email by appending:
-#    bin/poh-nonce.sh verify <nonce> <your-email>
-#    git add members.yaml && git commit -S -m "poh: echo nonce"
+### 3. Contact the maintainer
+- **Email (no-reply, won't receive):** `fgeorgatos@users.noreply.github.com`
+  (from the existing PoH registry — usable for reference only).
+- **GitHub:** https://github.com/fgeorgatos
+  (currently blocked for direct comment; DM via Keybase/Matrix preferred).
+- **Keybase:** https://keybase.io/fgeorgatos
+- **Matrix:** `@fgeorgatos:matrix.org`
+- **PoC repo link (use in Opire claim message):**
+  https://github.com/xicuvufv-bot/qtop-poh-poc
+- **Fork + branch ready to PR:**
+  https://github.com/xicuvufv-bot/qtop/tree/poh-lite-proposal
+
+### 4. When the interaction limit lifts
+```bash
+gh pr create \
+  --repo qtop/qtop \
+  --base develop \
+  --head xicuvufv-bot:poh-lite-proposal \
+  --title "docs: PoH-lite — lighter, more rewarding, more engaging PoH (issue #551)" \
+  --body-file pr-body.md   # see PR body template on the branch
 ```
 
-## Locally
-
-```sh
-# validate the whole registry
-./bin/verify-poh.sh --members members.yaml --schema schema.yaml
-# generate a fresh nonce
-./bin/poh-nonce.sh new <email>
-# verify an echoed nonce
-./bin/poh-nonce.sh verify <nonce> <email>
+### 5. (Optional) Enable CI on this PoC repo
+The workflow file lives at `ci/poh-check.yml` (moved out of `.github/`
+because the GitHub OAuth token lacks `workflow` scope). To deploy it:
+```bash
+gh auth refresh -s workflow   # one-time interactive browser auth
+# then move ci/poh-check.yml → .github/workflows/poh-check.yml
 ```
-
----
-
-License: this PoC repo is made available under the same liberal terms as
-qtop (see `LICENSE` note in PROPOSAL). AI-assisted authorship is
-disclosed in the qtop pull request description per `CONTRIBUTING.md`.
